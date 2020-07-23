@@ -23,6 +23,7 @@ href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
 <div align="right">
 	<a href="memberView.jsp"><%=suserid %></a> 관리자님 반갑습니다.
 	<a href="logout.jsp">로그아웃</a><br>
+	<a href="../board/list.jsp">게시판 글 보기</a>
 	전체회원수 :<span id="cntSpan"> <%=count %></span>
 </div>
 <br><br>

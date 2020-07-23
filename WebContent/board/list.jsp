@@ -12,31 +12,46 @@
 <link rel="stylesheet" 
 href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
 <%
-    BoardDAO dao =  BoardDAO.getInstance();
-	String field="",word="";
-	ArrayList<BoardVO> arr= null;
-	int count=0;
-	
-	if(request.getParameter("word")!=null){
-		field=request.getParameter("field");
-		word =request.getParameter("word");
-		arr = dao.boardList(field,word);
-		count = dao.boardCount(field, word);
-	}else{
-		arr=dao.boardList();
-		count = dao.boardCount();
-	}
-	
+    request.setCharacterEncoding("utf-8");
+     String pageNum = request.getParameter("pageNum");
+     if(pageNum==null){
+    	 pageNum = "1";
+     }
+     int currentPage = Integer.parseInt(pageNum);
+    BoardDAO dao = BoardDAO.getInstance();
+    int pageSize =5;
+    int startRow=(currentPage-1)*pageSize+1;
+    int endRow = currentPage*pageSize;
+    String field="", word="";
+    ArrayList<BoardVO> arr = null;
+    int count =0;
+    if(request.getParameter("word")!=null&&!request.getParameter("word").equals("")){
+    	field = request.getParameter("field");
+    	word = request.getParameter("word");
+    	arr = dao.boardList(field, word,startRow,endRow);
+        count = dao.boardCount(field, word);
+    }else{
+    	arr = dao.boardList(startRow, endRow);
+        count = dao.boardCount();  //53
+    }
+	String userid = (String)session.getAttribute("userid");
+    
 %>
 </head>
 <body>
-<div align="right">
-	<a href=""></a> 반갑습니다.
-	<a href="logout.jsp">로그아웃</a><br>
-	전체게시글 수:<span id="cntSpan"> <%=count%></span>
+<div align="right" style="margin-right: 20px">
+<%
+	if(userid!=null){
+%>
+	<%=userid %>반갑습니다.
+	<a href="../member/logout.jsp">로그아웃</a><br>
+<%
+	}
+%>	
+	전체 게시글 수: <span id="cntSpan"><%= count %></span><br><br>
 	<a href="writeForm.jsp">글쓰기</a>
 </div>
-<br><br>
+<br>
 <table class="table table-striped">
 	<thead>
 	<tr>
@@ -48,56 +63,77 @@ href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
 			<th>IP주소</th>
 		</tr>
 	</thead>
-	
 	<tbody>
 	<%
-	  for (BoardVO vo:arr) {
- 	 %>
+	  for( BoardVO  vo  :  arr){
+	 %>
   <tr>
-  	<td><%=vo.getNum()%></td>
-  	<td><a href="boardView.jsp?num=<%=vo.getNum()%>"><%=vo.getSubject()%></a></td>
-  	<td><%=vo.getWriter()%></td>
-  	<td><%=vo.getReg_date()%></td>
+  	<td><%=vo.getNum() %></td>
+  	<td><a href="boardView.jsp?num=<%=vo.getNum() %>"><%=vo.getSubject()%></a></td>
+  	<td><%=vo.getWriter() %></td>
+  	<td> <%=vo.getReg_date() %></td>
   	<td><%=vo.getReadcount()%></td>
-  	<td><%=vo.getIp()%></td>
+  	<td><%=vo.getIp() %></td>
   </tr>		  
-	<%		  
+<%		  
 	  }
+	
 	%>
 	</tbody>
 </table>
-	<form action="list.jsp" name="search" method="get">
-	<table>
-	<tr>
-	<td align=center>
-	<select name="field" size=1>
-		<option value="subject">제목
-		<option value="writer">작성자
-	</select>
-	<input type="text" size=16 name="word">
-	<input type="submit" value="찾기">
-	</td>
-	</tr>
-	</table>
-</form>
-<div align="center">
-<%
-	int pageSize = 5;
-	if(count>0){               // 11 = 53/5 + (53%5==0) 
-		int pageCount = count/pageSize+(count%pageSize==0?0:1);
-		int pageBlock =3;
-		int startPage=(int)((currentPage-1)/pageBlock)*pageBlock+1;
-		int endPage=startPage+pageBlock-1; //12
-		if(endPage>pageCount){
-			endPage =pageCount; //endPage = 11
-		}
-		//이전
-		
-		//for
-		
-		//다음
-	}
-%>
-</div>
+<br><br>
+<form action="list.jsp" name="search" method="get">
+		<table>
+ 			<tr>
+ 			 <td align=center >
+   			<select name="field" size=1 >
+    			<option value="subject"> 제 목
+    			<option value="writer"> 작성자
+    		</select>
+  		 <input type="text" size=16 name="word"  >
+   		<input type="submit"  value="찾기">
+   	 	</td>
+ 		</tr>
+		</table>
+	</form>
+	<div align="center">
+	<%
+	
+	   if(count>0){           //               11=   53/5  +(53%5==0)   
+		   int pageCount = count/pageSize+(count%pageSize==0?0:1);
+	       int pageBlock = 3; 
+	       int startPage =  (int)((currentPage-1)/pageBlock)*pageBlock+1;
+	       int endPage =  startPage+pageBlock-1;  //12
+	       if(endPage>pageCount){
+	    	   endPage  = pageCount;  //endPage =11
+	       }
+ 	       if(startPage >pageBlock){ //이전
+	%>    	   
+	    	   <a href="list.jsp?pageNum=<%=startPage-pageBlock %>&field=<%=field%>&word=<%=word%>">[이전]</a>
+  <%  	   
+	       }
+	       //for
+	       for(int i=startPage; i<=endPage ;i++){
+  %>	    	   
+	    	<a href="list.jsp?pageNum=<%=i %>&field=<%=field%>&word=<%=word%>"><%=i %></a>   
+<%	    	   
+	       }
+	       if(endPage < pageCount){      //다음
+	%>       
+	    	  <a href="list.jsp?pageNum=<%=startPage+pageBlock %>&field=<%=field%>&word=<%=word%>"> [다음]</a>
+	 <%   	   
+	       }
+		   
+		   
+	   }
+	%>
+	</div>
+	
 </body>
 </html>
+
+
+
+
+
+

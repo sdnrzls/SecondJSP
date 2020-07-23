@@ -16,6 +16,7 @@
 </head>
 <body>
 <%=userid %> 님 반갑습니다.  /  <a href="logout.jsp">로그아웃</a><br><br>
+<a href="../board/list.jsp">게시판으로</a>
 <h2>
 회원정보변경   /  <a href="userDelete.jsp">회원탈퇴</a>
 </h2>
