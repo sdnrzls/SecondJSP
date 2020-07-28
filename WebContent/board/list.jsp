@@ -98,7 +98,6 @@ href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" 
 	</form>
 	<div align="center">
 	<%
-	
 	   if(count>0){           //               11=   53/5  +(53%5==0)   
 		   int pageCount = count/pageSize+(count%pageSize==0?0:1);
 	       int pageBlock = 3; 
